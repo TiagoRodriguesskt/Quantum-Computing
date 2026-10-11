@@ -1,0 +1,25 @@
+# =============================================================
+#  Computação Quântica — dependências do projeto
+#  Requer Python 3.10 ou superior (recomendado: 3.12)
+#
+#  Instalação (dentro do ambiente virtual ativado):
+#      pip install -r requirements.txt
+# =============================================================
+
+# --- Fase 0 a 2: base numérica e visualização ---------------
+numpy>=2.0            # vetores, matrizes, números complexos
+scipy>=1.13           # álgebra linear avançada (expm, autovalores)
+matplotlib>=3.9       # gráficos, histogramas, Esfera de Bloch
+
+# --- Ambiente de estudo --------------------------------------
+jupyterlab>=4.2       # notebooks para as aulas
+ipykernel>=6.29       # liga o ambiente virtual ao Jupyter
+
+# --- Fase 3 em diante: frameworks quânticos ------------------
+qiskit>=2.0           # construção de circuitos quânticos
+qiskit-aer>=0.17      # simulador de alto desempenho (com ruído)
+qiskit-ibm-runtime>=0.40  # execução em computadores quânticos reais da IBM
+pylatexenc>=2.10      # desenho de circuitos com qc.draw("mpl")
+
+# --- Qualidade de código -------------------------------------
+pytest>=8.0           # testes automáticos do simulador próprio

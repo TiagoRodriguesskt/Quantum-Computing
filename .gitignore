@@ -1,0 +1,23 @@
+# Ambiente virtual
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Credenciais (ex.: token da IBM Quantum) — NUNCA versionar
+.env
+*.token
+qiskit-ibm.json
+
+# Sistema operacional / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
