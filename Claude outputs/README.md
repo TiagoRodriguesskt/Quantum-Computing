@@ -107,11 +107,22 @@ py --version
 ```
 </details>
 
-### 3.2 Abrir o terminal na pasta do projeto
+### 3.2 Baixar o projeto e abrir o terminal na pasta
+
+Clone o repositório (o comando é igual em todos os sistemas):
+
+```bash
+git clone https://github.com/TiagoRodriguesskt/Quantum-Computing.git
+cd Quantum-Computing
+```
+
+> Sem Git? No GitHub, clique em **Code → Download ZIP** e extraia a pasta.
+
+Se você já tem a pasta no computador, basta abrir o terminal nela:
 
 | Sistema | Como fazer |
 |---|---|
-| Linux / macOS | `cd ~/Estudos/Computação-Quântica` (ajuste o caminho se a pasta estiver em outro lugar) |
+| Linux / macOS | `cd caminho/da/pasta` (ex.: `cd ~/Estudos/Computação-Quântica`) |
 | Windows | Abra a pasta no Explorador → clique na barra de endereço → digite `powershell` → Enter |
 | VS Code (qualquer SO) | *Arquivo → Abrir Pasta* → depois *Terminal → Novo Terminal* |
 
@@ -359,7 +370,7 @@ sequenceDiagram
 ## 6. Estrutura de pastas
 
 ```
-Computação-Quântica/
+Quantum-Computing/
 │
 ├── README.md                    ← 📘 esta documentação
 ├── requirements.txt             ← 📦 dependências (pip install -r requirements.txt)
@@ -423,12 +434,12 @@ A lista detalhada de cada aula está no `README.md` de cada fase.
 | Ver os pacotes instalados | `pip list` | `pip list` |
 | Reinstalar as dependências | `pip install -r requirements.txt` | `pip install -r requirements.txt` |
 
-### Usando o Git (opcional, mas recomendado)
+### Salvando o progresso no GitHub
 
 ```bash
-git init                         # só na primeira vez
 git add .
 git commit -m "Aula 05: portas de Pauli"
+git push
 ```
 
 Um commit por aula vira um **diário do seu progresso**.
