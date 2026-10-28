@@ -1,12 +1,15 @@
-# Ambiente virtual
+# Ambiente virtual (recriado com `uv sync`)
 .venv/
-venv/
-env/
 
 # Python
 __pycache__/
 *.py[cod]
 .pytest_cache/
+
+# Pacotes gerados por `uv build`
+dist/
+build/
+*.egg-info/
 
 # Jupyter
 .ipynb_checkpoints/
@@ -16,8 +19,13 @@ __pycache__/
 *.token
 qiskit-ibm.json
 
+# Pasta criada pelo app do Claude
+Claude outputs/
+
 # Sistema operacional / editores
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+
+# IMPORTANTE: o uv.lock DEVE ser versionado (não ignore!)

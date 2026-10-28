@@ -4,6 +4,10 @@
 > validada passo a passo por simulações em Python. Ao longo do curso, você
 > constrói o seu próprio simulador quântico (`qsim`) e o compara com o
 > **Qiskit**, um framework profissional.
+>
+> O ambiente é gerenciado pelo **[uv](https://docs.astral.sh/uv/)**: um único
+> comando (`uv sync`) instala o Python certo e todas as bibliotecas, nas
+> mesmas versões, em Linux, macOS ou Windows.
 
 ---
 
@@ -18,7 +22,8 @@
 7. [Cronograma completo](#7-cronograma-completo)
 8. [Comandos do dia a dia](#8-comandos-do-dia-a-dia)
 9. [Solução de problemas](#9-solução-de-problemas)
-10. [Referências](#10-referências)
+10. [Alternativa sem uv (pip)](#10-alternativa-sem-uv-pip)
+11. [Referências](#11-referências)
 
 ---
 
@@ -41,17 +46,19 @@ com o que o Qiskit faz por dentro.
 
 ## 2. Pré-requisitos
 
-| Item | Versão | Obrigatório? |
+| Item | Obrigatório? | Observação |
 |---|---|---|
-| **Python** | 3.10 ou superior (recomendado **3.12**) | ✅ Sim |
-| **pip** | vem junto com o Python | ✅ Sim |
-| **Editor de código** | [VS Code](https://code.visualstudio.com) (recomendado) | ✅ Sim |
-| **Git** | qualquer versão recente | ⭕ Opcional (para versionar o progresso) |
-| **Conta IBM Quantum** | gratuita | ⭕ Só na Fase 4 (hardware real) |
+| **uv** | ✅ Sim | Gerencia o Python, o ambiente virtual e as bibliotecas |
+| **Git** | ✅ Sim | Para baixar o projeto e salvar o progresso |
+| **Editor de código** | ✅ Sim | [VS Code](https://code.visualstudio.com) recomendado |
+| **Python** | ❌ Não precisa instalar | O uv baixa o Python 3.12 sozinho (versão fixada em `.python-version`) |
+| **Conta IBM Quantum** | ⭕ Só na Fase 4 | Gratuita, para rodar em hardware real |
 
-> 💡 **Não quer instalar nada?** Dá para seguir as Fases 0 a 2 no
-> [Google Colab](https://colab.research.google.com), direto no navegador.
-> A partir da Fase 3, o ideal é ter o ambiente local.
+> 💡 **Por que uv?** Ele substitui `pip`, `venv` e `pyenv` em uma ferramenta só,
+> é muito mais rápido e grava as versões exatas de tudo no `uv.lock`.
+> **Analogia:** o `pip` recebe uma lista de compras ("pelo menos 1 kg de
+> arroz"); o `uv.lock` é a **nota fiscal**, com marca, peso e lote. Com ela,
+> qualquer pessoa reproduz exatamente a mesma compra.
 
 ---
 
@@ -60,133 +67,138 @@ com o que o Qiskit faz por dentro.
 Em todos os sistemas, o caminho é o mesmo:
 
 ```
-Instalar Python  →  Abrir terminal na pasta  →  Criar ambiente virtual
-       →  Ativar ambiente  →  Instalar dependências  →  Testar
+Instalar uv  →  Clonar o projeto  →  uv sync  →  Testar
 ```
 
-### 3.1 Instalar o Python
+### 3.1 Instalar o uv
 
-<details>
-<summary>🐧 <b>Linux</b> (Ubuntu / Debian / Mint)</summary>
-
-Quase sempre o Python já vem instalado. Confira e instale o que faltar:
+<details open>
+<summary>🐧 <b>Linux</b> (Debian, Ubuntu, Fedora, Arch...)</summary>
 
 ```bash
-python3 --version
-sudo apt update
-sudo apt install python3 python3-venv python3-pip
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-No **Fedora**: `sudo dnf install python3 python3-pip`
-No **Arch**: `sudo pacman -S python python-pip`
+Feche e abra o terminal (ou rode `source ~/.local/bin/env`) e confira:
+
+```bash
+uv --version
+```
+
+> Sem `curl`? No Debian/Ubuntu: `sudo apt install curl`.
 </details>
 
 <details>
 <summary>🍎 <b>macOS</b></summary>
 
-Opção 1 (recomendada), com [Homebrew](https://brew.sh):
-
 ```bash
-brew install python@3.12
-python3 --version
+curl -LsSf https://astral.sh/uv/install.sh | sh
+# ou, com Homebrew:
+brew install uv
 ```
 
-Opção 2: baixar o instalador em <https://www.python.org/downloads/>.
+```bash
+uv --version
+```
 </details>
 
 <details>
 <summary>🪟 <b>Windows</b></summary>
 
-1. Baixe o instalador em <https://www.python.org/downloads/>.
-2. ⚠️ **Na primeira tela, marque a caixa _"Add python.exe to PATH"_.**
-3. Clique em *Install Now*.
-4. Abra o **PowerShell** e confira:
+No **PowerShell**:
 
 ```powershell
-py --version
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+# ou, com winget:
+winget install --id=astral-sh.uv -e
+```
+
+Feche e abra o PowerShell e confira:
+
+```powershell
+uv --version
 ```
 </details>
 
-### 3.2 Abrir o terminal na pasta do projeto
+### 3.2 Baixar o projeto
 
-| Sistema | Como fazer |
-|---|---|
-| Linux / macOS | `cd ~/Estudos/Computação-Quântica` (ajuste o caminho se a pasta estiver em outro lugar) |
-| Windows | Abra a pasta no Explorador → clique na barra de endereço → digite `powershell` → Enter |
-| VS Code (qualquer SO) | *Arquivo → Abrir Pasta* → depois *Terminal → Novo Terminal* |
+```bash
+git clone https://github.com/TiagoRodriguesskt/Quantum-Computing.git
+cd Quantum-Computing
+```
 
-### 3.3 Criar o ambiente virtual
+> Sem Git? No GitHub, clique em **Code → Download ZIP**, extraia a pasta e
+> abra o terminal dentro dela.
 
-O **ambiente virtual** (`.venv`) é uma "caixa isolada" com as bibliotecas
-deste projeto. **Analogia:** é como ter um estojo só para as aulas de física.
+### 3.3 Instalar tudo com um comando
+
+```bash
+uv sync
+```
+
+Esse comando, sozinho:
+
+1. lê o `.python-version` e **baixa o Python 3.12** se ele não estiver instalado;
+2. cria o ambiente virtual `.venv/` dentro do projeto;
+3. instala **as versões exatas** de todas as bibliotecas registradas no `uv.lock`;
+4. instala o seu simulador `qsim` como pacote (em modo editável).
+
+**Analogia do ambiente virtual:** o `.venv` é um "estojo" só para este projeto.
 O que você coloca nele não se mistura com o resto do computador.
 
-| Sistema | Comando |
-|---|---|
-| Linux / macOS | `python3 -m venv .venv` |
-| Windows | `py -m venv .venv` |
+O que é instalado:
 
-> Esse passo só é feito **uma vez**.
+| Pacote | Para que serve | Usado a partir de | Grupo |
+|---|---|---|---|
+| `numpy` | Vetores, matrizes e números complexos | Fase 0 | principal |
+| `scipy` | Álgebra linear avançada | Fase 2 | principal |
+| `matplotlib` | Gráficos, histogramas, Esfera de Bloch | Fase 0 | principal |
+| `qiskit` | Montar circuitos quânticos | Fase 3 | principal |
+| `qiskit-aer` | Simulador rápido, com ruído | Fase 3 | principal |
+| `qiskit-ibm-runtime` | Rodar em computadores quânticos reais | Fase 4 | principal |
+| `pylatexenc` | Desenhar circuitos (`draw("mpl")`) | Fase 3 | principal |
+| `jupyterlab`, `ipykernel` | Notebooks interativos | Fase 0 | `dev` |
+| `pytest` | Testes automáticos do simulador | Fase 1 | `dev` |
+| `qsim` | **Seu simulador** (pasta `simulador/qsim`) | Fase 1 | o próprio projeto |
 
-### 3.4 Ativar o ambiente virtual
-
-| Sistema | Terminal | Comando |
-|---|---|---|
-| Linux / macOS | bash / zsh | `source .venv/bin/activate` |
-| Windows | PowerShell | `.venv\Scripts\Activate.ps1` |
-| Windows | CMD | `.venv\Scripts\activate.bat` |
-
-Quando der certo, aparece `(.venv)` no início da linha do terminal:
-
-```
-(.venv) tiago@pc:~/Estudos/Computação-Quântica$
-```
-
-> ⚠️ Você precisa **ativar** o ambiente **toda vez** que abrir um terminal novo.
-
-### 3.5 Instalar as dependências
-
-Com o ambiente ativado (o comando é igual em todos os sistemas):
+### 3.4 Testar a instalação
 
 ```bash
-python -m pip install --upgrade pip
-pip install -r requirements.txt
+uv run python scripts/verificar_ambiente.py
+uv run pytest
 ```
 
-O que será instalado:
-
-| Pacote | Para que serve | Usado a partir de |
-|---|---|---|
-| `numpy` | Vetores, matrizes e números complexos | Fase 0 |
-| `scipy` | Álgebra linear avançada | Fase 2 |
-| `matplotlib` | Gráficos, histogramas, Esfera de Bloch | Fase 0 |
-| `jupyterlab`, `ipykernel` | Notebooks interativos | Fase 0 |
-| `qiskit` | Montar circuitos quânticos | Fase 3 |
-| `qiskit-aer` | Simulador rápido, com ruído | Fase 3 |
-| `qiskit-ibm-runtime` | Rodar em computadores quânticos reais | Fase 4 |
-| `pylatexenc` | Desenhar circuitos bonitos (`draw("mpl")`) | Fase 3 |
-| `pytest` | Testes automáticos do simulador | Fase 1 |
-
-### 3.6 Testar a instalação
-
-```bash
-python -c "import numpy, qiskit; print('numpy', numpy.__version__, '| qiskit', qiskit.__version__)"
-pytest simulador/tests
-```
-
-✅ **Tudo certo** se aparecer algo como:
+✅ **Tudo certo** se aparecer:
 
 ```
-numpy 2.x.x | qiskit 2.x.x
+✅ Ambiente pronto! Pode começar a Aula P1.
+...
 1 passed
 ```
 
-### 3.7 (Opcional) Registrar o ambiente no Jupyter
+### 3.5 Por que `uv run` e não `python`?
 
-Assim o Jupyter e o VS Code reconhecem o ambiente pelo nome:
+`uv run <comando>` executa o comando **dentro do ambiente do projeto**, sem
+precisar ativar nada. E, antes de rodar, ele confere se o ambiente está em
+dia com o `pyproject.toml`; se não estiver, sincroniza sozinho.
+
+| Em vez de... | Use |
+|---|---|
+| `python arquivo.py` | `uv run python arquivo.py` |
+| `pytest` | `uv run pytest` |
+| `jupyter lab` | `uv run jupyter lab` |
+
+> Prefere ativar o ambiente do jeito tradicional? Também funciona:
+> `source .venv/bin/activate` (Linux/macOS) ou `.venv\Scripts\Activate.ps1`
+> (Windows). Depois disso, `python` e `pytest` funcionam direto.
+
+### 3.6 (Opcional) Usar o ambiente no VS Code e no Jupyter
+
+- **VS Code:** `Ctrl+Shift+P` → *Python: Select Interpreter* → escolha `.venv`.
+- **Jupyter:** registre o ambiente com um nome amigável:
 
 ```bash
-python -m ipykernel install --user --name computacao-quantica --display-name "Computação Quântica"
+uv run python -m ipykernel install --user --name computacao-quantica --display-name "Computação Quântica"
 ```
 
 ---
@@ -205,25 +217,24 @@ flowchart LR
     D --> E{"Entendi?"}
     E -- "Não" --> A
     E -- "Sim" --> F["🛠️ Atualizar qsim<br/>(quando a aula pede)"]
-    F --> G["✅ Marcar [x]<br/>no README da fase"]
+    F --> G["✅ Marcar [x]<br/>+ git commit"]
 ```
 
 1. **Teoria:** estude o conceito (analogia → definição → exemplo em contas).
 2. **Notas:** escreva um resumo com **suas palavras** em `notas/`.
 3. **Validação:** rode o script da aula e confira se o resultado bate com a teoria.
 4. **Desafio:** resolva o desafio proposto, sozinho, em `desafios/`.
-5. **Simulador:** quando a aula fecha um marco, adicione a peça ao `qsim`.
-6. **Progresso:** marque a aula como concluída no `README.md` da fase (`- [ ]` → `- [x]`).
+5. **Simulador:** quando a aula fecha um marco, adicione a peça ao `qsim` e rode `uv run pytest`.
+6. **Progresso:** marque a aula no `README.md` da fase (`- [ ]` → `- [x]`) e faça um commit.
 
 ### 4.2 Convenção de nomes
-
-O número da aula vai sempre na frente, com dois dígitos, para manter os arquivos em ordem:
 
 | Tipo | Padrão | Exemplo |
 |---|---|---|
 | Nota teórica | `aulaNN_tema.md` | `aula05_portas_pauli.md` |
 | Script da aula | `aulaNN_tema.py` | `aula05_portas_pauli.py` |
 | Desafio | `desafioNN_tema.py` | `desafio05_unitariedade.py` |
+| Aulas de Python (Fase 0) | `P` no lugar de `NN` | `desafioP1_meio_somador.py` |
 | Notebook livre | `NN_tema.ipynb` | `05_explorando_hadamard.ipynb` |
 
 > Use **letras minúsculas**, **sem acentos** e **sem espaços** (use `_`).
@@ -232,23 +243,54 @@ O número da aula vai sempre na frente, com dois dígitos, para manter os arquiv
 ### 4.3 Rodando um script
 
 ```bash
-# sempre a partir da raiz do projeto, com o .venv ativado
-python fases/fase1_fundamentos/codigo/aula04_medicao.py
+# sempre a partir da raiz do projeto
+uv run python fases/fase1_fundamentos/codigo/aula04_medicao.py
 ```
 
-### 4.4 Rodando um notebook
+Como o `qsim` é um pacote instalado, **qualquer script** pode usá-lo:
+
+```python
+import qsim
+```
+
+### 4.4 Modo interativo e notebooks
 
 ```bash
-jupyter lab
+uv run python        # modo interativo (>>>), ótimo para testar ideias
+uv run jupyter lab   # abre o Jupyter no navegador
 ```
 
-O navegador abre sozinho. Crie seus notebooks dentro da pasta `notebooks/`.
+Crie seus notebooks dentro da pasta `notebooks/`.
 
 ---
 
 ## 5. Arquitetura do sistema
 
-### 5.1 Visão em camadas
+### 5.1 As ferramentas: como o uv organiza o ambiente
+
+```mermaid
+flowchart LR
+    PV[".python-version<br/>3.12"] --> UV
+    PP["pyproject.toml<br/>o que o projeto precisa"] --> UV
+    UV(("uv"))
+    UV -->|"uv lock"| LK["uv.lock<br/>versões exatas<br/>(Linux, macOS, Windows)"]
+    LK -->|"uv sync"| VENV[".venv/<br/>Python 3.12 + bibliotecas + qsim"]
+    VENV -->|"uv run"| RUN["seus scripts,<br/>pytest, Jupyter"]
+    LK -.->|"uv export"| REQ["requirements.txt<br/>(só para quem usa pip)"]
+```
+
+| Arquivo | Quem escreve | Vai para o GitHub? | Papel |
+|---|---|---|---|
+| `pyproject.toml` | Você (ou `uv add`) | ✅ Sim | O que o projeto **precisa** (ex.: `numpy>=2.0`) |
+| `.python-version` | Você | ✅ Sim | Qual Python usar |
+| `uv.lock` | O uv, automaticamente | ✅ **Sim, sempre** | O que foi **instalado de fato** (ex.: `numpy==2.5.4`) |
+| `.venv/` | O uv, automaticamente | ❌ Não | O ambiente em si; recriado com `uv sync` |
+| `requirements.txt` | `uv export` | ✅ Sim | Compatibilidade com pip |
+
+> **Regra de ouro:** nunca edite o `uv.lock` à mão e nunca instale pacotes com
+> `pip install` dentro do projeto. Use sempre `uv add` / `uv remove`.
+
+### 5.2 Visão em camadas do código
 
 O projeto é organizado em **camadas**. Cada camada usa a de baixo:
 
@@ -301,7 +343,7 @@ flowchart TB
 A ideia principal: **primeiro você constrói (qsim), depois usa a ferramenta
 pronta (Qiskit)**. Assim o Qiskit nunca vira uma "caixa-preta".
 
-### 5.2 Arquitetura interna do `qsim`
+### 5.3 Arquitetura interna do `qsim`
 
 Os módulos do simulador são criados ao longo do curso. As setas mostram quem
 depende de quem:
@@ -324,7 +366,7 @@ flowchart LR
     CI --> R
 ```
 
-### 5.3 Fluxo de uma simulação
+### 5.4 Fluxo de uma simulação
 
 O que acontece "por baixo dos panos" quando você simula um circuito:
 
@@ -344,7 +386,7 @@ sequenceDiagram
     M-->>U: {'0': 503, '1': 497}
 ```
 
-### 5.4 Marcos do simulador por fase
+### 5.5 Marcos do simulador por fase
 
 | Fase | O que o `qsim` passa a fazer |
 |---|---|
@@ -359,12 +401,15 @@ sequenceDiagram
 ## 6. Estrutura de pastas
 
 ```
-Computação-Quântica/
+Quantum-Computing/
 │
 ├── README.md                    ← 📘 esta documentação
-├── requirements.txt             ← 📦 dependências (pip install -r requirements.txt)
+├── pyproject.toml               ← ⚙️ configuração do projeto e dependências (uv)
+├── uv.lock                      ← 🔒 versões exatas (gerado pelo uv — versionar!)
+├── .python-version              ← 🐍 versão do Python (3.12)
+├── requirements.txt             ← 📦 alternativa para quem usa pip
 ├── .gitignore                   ← 🚫 arquivos que o Git deve ignorar
-├── .venv/                       ← 🧰 ambiente virtual (criado por você, não versionar)
+├── .venv/                       ← 🧰 ambiente virtual (criado pelo uv sync, não versionar)
 │
 ├── fases/                       ← 🎓 o curso, uma pasta por fase
 │   ├── fase0_python/            ← Python do zero (P1–P7)
@@ -381,10 +426,13 @@ Computação-Quântica/
 │
 ├── simulador/                   ← 🛠️ projeto contínuo
 │   ├── README.md                ←   marcos do simulador
-│   ├── qsim/                    ←   pacote Python
+│   ├── qsim/                    ←   pacote Python (instalado pelo uv sync)
 │   │   └── __init__.py          ←   (módulos novos entram aqui a cada fase)
-│   └── tests/                   ←   testes automáticos
+│   └── tests/                   ←   testes automáticos (uv run pytest)
 │       └── test_versao.py
+│
+├── scripts/                     ← 🔧 utilitários do projeto
+│   └── verificar_ambiente.py    ←   checa se o ambiente está pronto
 │
 ├── notebooks/                   ← 📓 experimentos livres no Jupyter
 └── recursos/                    ← 📚 livros, artigos e links
@@ -413,25 +461,48 @@ A lista detalhada de cada aula está no `README.md` de cada fase.
 
 ## 8. Comandos do dia a dia
 
-| Tarefa | Linux / macOS | Windows (PowerShell) |
-|---|---|---|
-| Ativar o ambiente | `source .venv/bin/activate` | `.venv\Scripts\Activate.ps1` |
-| Desativar o ambiente | `deactivate` | `deactivate` |
-| Rodar um script | `python caminho/arquivo.py` | `python caminho\arquivo.py` |
-| Abrir o Jupyter | `jupyter lab` | `jupyter lab` |
-| Rodar os testes | `pytest simulador/tests` | `pytest simulador\tests` |
-| Ver os pacotes instalados | `pip list` | `pip list` |
-| Reinstalar as dependências | `pip install -r requirements.txt` | `pip install -r requirements.txt` |
+Os comandos do uv são **iguais em Linux, macOS e Windows**.
 
-### Usando o Git (opcional, mas recomendado)
+### Rodar coisas
+
+| Tarefa | Comando |
+|---|---|
+| Rodar um script | `uv run python caminho/arquivo.py` |
+| Modo interativo | `uv run python` |
+| Abrir o Jupyter | `uv run jupyter lab` |
+| Rodar os testes | `uv run pytest` |
+| Testes com detalhes | `uv run pytest -v` |
+| Verificar o ambiente | `uv run python scripts/verificar_ambiente.py` |
+
+### Gerenciar pacotes
+
+| Tarefa | Comando |
+|---|---|
+| Instalar / sincronizar tudo | `uv sync` |
+| Adicionar uma biblioteca | `uv add sympy` |
+| Adicionar uma ferramenta de dev | `uv add --dev ruff` |
+| Remover uma biblioteca | `uv remove sympy` |
+| Ver a árvore de dependências | `uv tree` |
+| Atualizar todas as versões | `uv lock --upgrade` e depois `uv sync` |
+| Regenerar o `requirements.txt` | `uv export --format requirements-txt --no-hashes --no-emit-project -o requirements.txt` |
+
+### Gerenciar o Python
+
+| Tarefa | Comando |
+|---|---|
+| Ver os Pythons disponíveis | `uv python list` |
+| Trocar a versão do projeto | `uv python pin 3.13` e depois `uv sync` |
+
+### Salvar o progresso no GitHub
 
 ```bash
-git init                         # só na primeira vez
 git add .
 git commit -m "Aula 05: portas de Pauli"
+git push
 ```
 
-Um commit por aula vira um **diário do seu progresso**.
+Um commit por aula vira um **diário do seu progresso**. Sempre que mudar
+dependências, inclua o `pyproject.toml` **e** o `uv.lock` no commit.
 
 ---
 
@@ -439,19 +510,37 @@ Um commit por aula vira um **diário do seu progresso**.
 
 | Problema | Causa provável | Solução |
 |---|---|---|
-| `python: command not found` (Linux/macOS) | O comando no seu sistema é `python3` | Use `python3`, ou ative o `.venv` (lá dentro, `python` funciona) |
-| `'python' não é reconhecido` (Windows) | O Python não foi adicionado ao PATH | Use `py`, ou reinstale marcando *"Add python.exe to PATH"* |
-| `Activate.ps1 não pode ser carregado` (Windows) | Política de segurança do PowerShell | Rode uma vez: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` |
-| `ensurepip is not available` (Ubuntu/Debian) | Falta o pacote `venv` | `sudo apt install python3-venv` |
-| `ModuleNotFoundError: No module named 'numpy'` | O `.venv` não está ativado | Ative o ambiente (seção 3.4) e rode de novo |
-| `error: externally-managed-environment` | Tentou instalar fora do `.venv` | Ative o `.venv` antes do `pip install` |
-| O VS Code não acha as bibliotecas | O VS Code está usando outro Python | `Ctrl+Shift+P` → *Python: Select Interpreter* → escolha `.venv` |
-| `qc.draw("mpl")` dá erro | Falta o `pylatexenc` | `pip install pylatexenc` |
-| A instalação do Qiskit falha | Versão do Python antiga | Confira com `python --version` (precisa ser 3.10+) |
+| `uv: command not found` | O terminal ainda não conhece o uv | Feche e abra o terminal, ou rode `source ~/.local/bin/env` |
+| `Failed to spawn: pyteste` | Erro de digitação no comando | Confira o nome: é `pytest`. O uv tenta rodar exatamente o que você escreveu |
+| `ModuleNotFoundError: No module named 'qsim'` (ou `numpy`...) | Ambiente desatualizado ou rodou `python` sem `uv run` | Rode `uv sync` e use `uv run python ...` |
+| `No solution found when resolving dependencies` | Versões incompatíveis entre pacotes | Confira o que mudou no `pyproject.toml`; tente `uv lock --upgrade` |
+| `The lockfile needs to be updated` | `pyproject.toml` foi editado à mão | Rode `uv lock` e depois `uv sync` |
+| O VS Code não acha as bibliotecas | O VS Code está usando outro Python | `Ctrl+Shift+P` → *Python: Select Interpreter* → `.venv` |
+| `Activate.ps1 não pode ser carregado` (Windows) | Política do PowerShell (só ao ativar manualmente) | Use `uv run`, ou rode `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` |
+| `qc.draw("mpl")` dá erro | Ambiente incompleto | Rode `uv sync` (o `pylatexenc` já está no projeto) |
+| Algo muito estranho no ambiente | `.venv` corrompido | Apague a pasta `.venv` e rode `uv sync`. É seguro: o uv recria tudo |
 
 ---
 
-## 10. Referências
+## 10. Alternativa sem uv (pip)
+
+Para quem não pode instalar o uv, o `requirements.txt` continua disponível
+(precisa de Python 3.10+ já instalado):
+
+```bash
+python3 -m venv .venv                  # Windows: py -m venv .venv
+source .venv/bin/activate              # Windows: .venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+pip install -e .                       # instala o qsim como pacote
+python scripts/verificar_ambiente.py
+```
+
+> Com pip, as versões **não** ficam travadas como no `uv.lock`. O caminho
+> recomendado é sempre o uv.
+
+---
+
+## 11. Referências
 
 Veja a lista completa em [`recursos/README.md`](recursos/README.md). Os principais:
 
@@ -459,6 +548,7 @@ Veja a lista completa em [`recursos/README.md`](recursos/README.md). Os principa
 - **IBM Quantum Learning**: <https://learning.quantum.ibm.com>
 - **Documentação do Qiskit**: <https://docs.quantum.ibm.com>
 - **Documentação do NumPy**: <https://numpy.org/doc>
+- **Documentação do uv**: <https://docs.astral.sh/uv/>
 
 ---
 

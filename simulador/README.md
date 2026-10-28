@@ -1,6 +1,14 @@
 # qsim — meu simulador quântico
 
-Projeto contínuo do curso. Cada fase adiciona uma peça:
+Projeto contínuo do curso. O `qsim` é instalado como pacote pelo `uv sync`
+(configurado no `pyproject.toml` da raiz), então qualquer script do projeto
+pode simplesmente fazer:
+
+```python
+import qsim
+```
+
+Cada fase adiciona uma peça:
 
 | Fase | Marco |
 |---|---|
@@ -10,8 +18,14 @@ Projeto contínuo do curso. Cada fase adiciona uma peça:
 | 4 | Rodar Deutsch-Jozsa e Grover no próprio simulador |
 | 5 | Adicionar ruído com matriz densidade |
 
-Rodar os testes (a partir da raiz do projeto):
+## Rodar os testes
+
+A partir da raiz do projeto:
 
 ```bash
-pytest simulador/tests
+uv run pytest              # todos os testes
+uv run pytest -v           # mostrando o nome de cada teste
 ```
+
+> Criou um módulo novo em `qsim/`? Não precisa reinstalar nada: o `uv sync`
+> instala o pacote em modo editável, e as mudanças valem na hora.

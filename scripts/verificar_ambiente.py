@@ -11,6 +11,9 @@ O script faz três tipos de teste:
 
 import importlib
 import sys
+from pathlib import Path
+
+RAIZ = Path(__file__).resolve().parents[1]
 
 OK, FALHA, AVISO = "✅", "❌", "⚠️ "
 falhas = 0
@@ -34,8 +37,21 @@ print("\n[1/3] Ambiente")
 v = sys.version_info
 resultado(v >= (3, 10), f"Python {v.major}.{v.minor}.{v.micro} (mínimo: 3.10)")
 
-em_venv = sys.prefix != sys.base_prefix
-resultado(em_venv, f"Ambiente virtual ativo: {sys.prefix}", aviso=True)
+arquivo_versao = RAIZ / ".python-version"
+if arquivo_versao.exists():
+    esperada = arquivo_versao.read_text().strip()
+    atual = f"{v.major}.{v.minor}"
+    resultado(atual == esperada,
+              f"Versão fixada em .python-version: {esperada} (em uso: {atual})",
+              aviso=True)
+
+venv_do_projeto = RAIZ / ".venv"
+em_venv = Path(sys.prefix).resolve() == venv_do_projeto.resolve()
+resultado(em_venv, f"Ambiente do projeto em uso: {sys.prefix}", aviso=True)
+
+resultado((RAIZ / "uv.lock").exists(),
+          "uv.lock encontrado (versões travadas)" if (RAIZ / "uv.lock").exists()
+          else "uv.lock não encontrado — rode: uv lock", aviso=True)
 
 # ------------------------------------------------------------------
 print("\n[2/3] Pacotes")
@@ -52,6 +68,7 @@ pacotes = {
     "qiskit_ibm_runtime": "qiskit-ibm-runtime",
     "pylatexenc": "pylatexenc",
     "pytest": "pytest",
+    "qsim": "qsim (meu simulador)",
 }
 for modulo, nome in pacotes.items():
     try:
@@ -110,20 +127,25 @@ try:
     so_correlacionados = set(contagens) <= {"00", "11"}
     resultado(so_correlacionados, f"Qiskit Aer: estado de Bell -> {dict(contagens)}")
 except Exception as erro:  # noqa: BLE001
+    qc = None
     resultado(False, f"Qiskit Aer: erro ({erro})")
 
 # Teste D: desenho de circuito (usa pylatexenc)
-try:
-    qc.draw("mpl")
-    resultado(True, "Qiskit: desenho de circuito com matplotlib")
-except Exception as erro:  # noqa: BLE001
-    resultado(False, f"Qiskit: desenho falhou ({erro})")
+if qc is None:
+    resultado(False, "Qiskit: desenho não testado (o Qiskit não funcionou)")
+else:
+    try:
+        plt.close(qc.draw("mpl"))
+        resultado(True, "Qiskit: desenho de circuito com matplotlib")
+    except Exception as erro:  # noqa: BLE001
+        resultado(False, f"Qiskit: desenho falhou ({erro})")
 
 # ------------------------------------------------------------------
 print("\n" + "=" * 50)
 if falhas == 0:
     print(f"{OK} Ambiente pronto! Pode começar a Aula P1.")
 else:
-    print(f"{FALHA} {falhas} teste(s) falharam. Copie esta saída e envie para análise.")
+    print(f"{FALHA} {falhas} teste(s) falharam.")
+    print("   Dica: rode `uv sync` e tente de novo. Se continuar, envie esta saída.")
 print("=" * 50 + "\n")
 sys.exit(1 if falhas else 0)

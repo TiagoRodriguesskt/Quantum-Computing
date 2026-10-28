@@ -1,10 +1,10 @@
-"""Teste inicial: confirma que o pacote qsim pode ser importado."""
+"""Teste inicial: confirma que o pacote qsim está instalado e importa.
 
-import sys
-from pathlib import Path
+O qsim é instalado pelo `uv sync` (veja pyproject.toml), por isso o
+`import qsim` funciona direto, sem nenhum truque de caminho.
 
-# Permite importar qsim sem instalá-lo como pacote
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+Rodar:  uv run pytest
+"""
 
 import qsim
 

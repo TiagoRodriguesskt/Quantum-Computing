@@ -1,0 +1,55 @@
+# =============================================================
+#  Quantum-Computing — configuração do projeto (gerenciado pelo uv)
+#
+#  Instalar tudo:            uv sync
+#  Adicionar um pacote:      uv add nome-do-pacote
+#  Adicionar só para dev:    uv add --dev nome-do-pacote
+#  Atualizar as versões:     uv lock --upgrade && uv sync
+# =============================================================
+
+[project]
+name = "quantum-computing"
+version = "0.1.0"
+description = "Plano de estudos de Python e Computação Quântica, do zero ao avançado, com um simulador quântico próprio (qsim)."
+readme = "README.md"
+authors = [{ name = "Tiago Rodrigues" }]
+requires-python = ">=3.10"
+
+# Bibliotecas usadas pelo código das aulas e pelo simulador
+dependencies = [
+    # --- Fases 0 a 2: base numérica e visualização ---
+    "numpy>=2.0",               # vetores, matrizes, números complexos
+    "scipy>=1.13",              # álgebra linear avançada (expm, autovalores)
+    "matplotlib>=3.9",          # gráficos, histogramas, Esfera de Bloch
+
+    # --- Fase 3 em diante: frameworks quânticos ---
+    "qiskit>=2.0",              # construção de circuitos quânticos
+    "qiskit-aer>=0.17",         # simulador de alto desempenho (com ruído)
+    "qiskit-ibm-runtime>=0.40", # execução em computadores quânticos reais da IBM
+    "pylatexenc>=2.10",         # desenho de circuitos com qc.draw("mpl")
+]
+
+# Ferramentas de estudo e de teste (instaladas por padrão no `uv sync`)
+[dependency-groups]
+dev = [
+    "jupyterlab>=4.2",          # notebooks para as aulas
+    "ipykernel>=6.29",          # liga o ambiente ao Jupyter / VS Code
+    "pytest>=8.0",              # testes automáticos do simulador
+]
+
+# -------------------------------------------------------------
+#  O simulador próprio (qsim) é instalado como pacote.
+#  Assim, `import qsim` funciona em qualquer script do projeto.
+#  O código fica em simulador/qsim/.
+# -------------------------------------------------------------
+[build-system]
+requires = ["uv_build>=0.8,<0.12"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "qsim"
+module-root = "simulador"
+
+# Configuração do pytest: `uv run pytest` já sabe onde estão os testes
+[tool.pytest.ini_options]
+testpaths = ["simulador/tests"]

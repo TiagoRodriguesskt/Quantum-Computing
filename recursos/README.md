@@ -9,6 +9,7 @@
 - IBM Quantum Learning — https://learning.quantum.ibm.com
 - Documentação do Qiskit — https://docs.quantum.ibm.com
 - Documentação do NumPy — https://numpy.org/doc
+- Documentação do uv — https://docs.astral.sh/uv/
 
 ## Minhas anotações
 (adicione aqui artigos, vídeos e links que encontrar)
